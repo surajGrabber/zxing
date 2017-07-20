@@ -71,9 +71,9 @@ public final class CalendarResultHandler extends ResultHandler {
       }
 
       addCalendarEvent(calendarResult.getSummary(),
-                       calendarResult.getStartTimestamp(),
+                       calendarResult.getStart().getTime(),
                        calendarResult.isStartAllDay(),
-                       calendarResult.getEndTimestamp(),
+                       calendarResult.getEnd().getTime(),
                        calendarResult.getLocation(),
                        description,
                        calendarResult.getAttendees());
@@ -142,10 +142,10 @@ public final class CalendarResultHandler extends ResultHandler {
 
     ParsedResult.maybeAppend(calResult.getSummary(), result);
 
-    long start = calResult.getStartTimestamp();
+    long start = calResult.getStart().getTime();
     ParsedResult.maybeAppend(format(calResult.isStartAllDay(), start), result);
 
-    long end = calResult.getEndTimestamp();
+    long end = calResult.getEnd().getTime();
     if (end >= 0L) {
       if (calResult.isEndAllDay() && start != end) {
         // Show only year/month/day
