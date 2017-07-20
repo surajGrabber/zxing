@@ -2,5 +2,9 @@
     {
         "merged": "/Users/surajkanavehalli/Decode/android-client/app/build/intermediates/res/merged/debug/layout-ldpi-v4/capture.xml",
         "source": "/Users/surajkanavehalli/Decode/android-client/app/src/main/res/layout-ldpi/capture.xml"
+    },
+    {
+        "merged": "/Users/surajkanavehalli/Decode/zxing/zxing-android-client/app/build/intermediates/res/merged/debug/layout-ldpi-v4/capture.xml",
+        "source": "/Users/surajkanavehalli/Decode/zxing/zxing-android-client/app/src/main/res/layout-ldpi/capture.xml"
     }
 ]

@@ -1,5 +1,9 @@
 [
     {
+        "merged": "/Users/surajkanavehalli/Decode/zxing/zxing-android-client/app/build/intermediates/res/merged/debug/xml/preferences.xml",
+        "source": "/Users/surajkanavehalli/Decode/zxing/zxing-android-client/app/src/main/res/xml/preferences.xml"
+    },
+    {
         "merged": "/Users/surajkanavehalli/Decode/android-client/app/build/intermediates/res/merged/debug/xml/preferences.xml",
         "source": "/Users/surajkanavehalli/Decode/android-client/app/src/main/res/xml/preferences.xml"
     }

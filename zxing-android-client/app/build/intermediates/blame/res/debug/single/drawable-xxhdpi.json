@@ -2,5 +2,9 @@
     {
         "merged": "/Users/surajkanavehalli/Decode/android-client/app/build/intermediates/res/merged/debug/drawable-xxhdpi/launcher_icon.png",
         "source": "/Users/surajkanavehalli/Decode/android-client/app/src/main/res/drawable-xxhdpi/launcher_icon.png"
+    },
+    {
+        "merged": "/Users/surajkanavehalli/Decode/zxing/zxing-android-client/app/build/intermediates/res/merged/debug/drawable-xxhdpi/launcher_icon.png",
+        "source": "/Users/surajkanavehalli/Decode/zxing/zxing-android-client/app/src/main/res/drawable-xxhdpi/launcher_icon.png"
     }
 ]

@@ -4,11 +4,23 @@
         "source": "/Users/surajkanavehalli/Decode/android-client/app/src/main/res/menu/history.xml"
     },
     {
+        "merged": "/Users/surajkanavehalli/Decode/zxing/zxing-android-client/app/build/intermediates/res/merged/debug/menu/encode.xml",
+        "source": "/Users/surajkanavehalli/Decode/zxing/zxing-android-client/app/src/main/res/menu/encode.xml"
+    },
+    {
         "merged": "/Users/surajkanavehalli/Decode/android-client/app/build/intermediates/res/merged/debug/menu/capture.xml",
         "source": "/Users/surajkanavehalli/Decode/android-client/app/src/main/res/menu/capture.xml"
     },
     {
         "merged": "/Users/surajkanavehalli/Decode/android-client/app/build/intermediates/res/merged/debug/menu/encode.xml",
         "source": "/Users/surajkanavehalli/Decode/android-client/app/src/main/res/menu/encode.xml"
+    },
+    {
+        "merged": "/Users/surajkanavehalli/Decode/zxing/zxing-android-client/app/build/intermediates/res/merged/debug/menu/capture.xml",
+        "source": "/Users/surajkanavehalli/Decode/zxing/zxing-android-client/app/src/main/res/menu/capture.xml"
+    },
+    {
+        "merged": "/Users/surajkanavehalli/Decode/zxing/zxing-android-client/app/build/intermediates/res/merged/debug/menu/history.xml",
+        "source": "/Users/surajkanavehalli/Decode/zxing/zxing-android-client/app/src/main/res/menu/history.xml"
     }
 ]

@@ -2,5 +2,9 @@
     {
         "merged": "/Users/surajkanavehalli/Decode/android-client/app/build/intermediates/res/merged/debug/raw/beep.ogg",
         "source": "/Users/surajkanavehalli/Decode/android-client/app/src/main/res/raw/beep.ogg"
+    },
+    {
+        "merged": "/Users/surajkanavehalli/Decode/zxing/zxing-android-client/app/build/intermediates/res/merged/debug/raw/beep.ogg",
+        "source": "/Users/surajkanavehalli/Decode/zxing/zxing-android-client/app/src/main/res/raw/beep.ogg"
     }
 ]
