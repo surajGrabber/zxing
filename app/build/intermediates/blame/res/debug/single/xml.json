@@ -1,0 +1,10 @@
+[
+    {
+        "merged": "/Users/surajkanavehalli/Decode/zxing/app/build/intermediates/res/merged/debug/xml/preferences.xml",
+        "source": "/Users/surajkanavehalli/Decode/zxing/app/src/main/res/xml/preferences.xml"
+    },
+    {
+        "merged": "/Users/surajkanavehalli/Decode/zxing/zxing/app/build/intermediates/res/merged/debug/xml/preferences.xml",
+        "source": "/Users/surajkanavehalli/Decode/zxing/zxing/app/src/main/res/xml/preferences.xml"
+    }
+]

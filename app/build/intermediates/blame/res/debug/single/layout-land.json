@@ -1,0 +1,18 @@
+[
+    {
+        "merged": "/Users/surajkanavehalli/Decode/zxing/zxing/app/build/intermediates/res/merged/debug/layout-land/share.xml",
+        "source": "/Users/surajkanavehalli/Decode/zxing/zxing/app/src/main/res/layout-land/share.xml"
+    },
+    {
+        "merged": "/Users/surajkanavehalli/Decode/zxing/app/build/intermediates/res/merged/debug/layout-land/encode.xml",
+        "source": "/Users/surajkanavehalli/Decode/zxing/app/src/main/res/layout-land/encode.xml"
+    },
+    {
+        "merged": "/Users/surajkanavehalli/Decode/zxing/app/build/intermediates/res/merged/debug/layout-land/share.xml",
+        "source": "/Users/surajkanavehalli/Decode/zxing/app/src/main/res/layout-land/share.xml"
+    },
+    {
+        "merged": "/Users/surajkanavehalli/Decode/zxing/zxing/app/build/intermediates/res/merged/debug/layout-land/encode.xml",
+        "source": "/Users/surajkanavehalli/Decode/zxing/zxing/app/src/main/res/layout-land/encode.xml"
+    }
+]
