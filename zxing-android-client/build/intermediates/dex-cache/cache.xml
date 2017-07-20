@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<items version="2" >
+
+    <item
+        is-multidex="false"
+        jar="/Users/surajkanavehalli/.gradle/caches/modules-2/files-2.1/com.google.zxing/core/3.3.0/73c49077166faa4c3c0059c5f583d1d7bd1475fe/core-3.3.0.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.0"
+        sha1="73c49077166faa4c3c0059c5f583d1d7bd1475fe">
+        <dex dex="/Users/surajkanavehalli/Decode/android-client/app/build/intermediates/pre-dexed/debug/core-3.3.0_ba6845ceef18d38c9bd7b01c0feb4e89d25e3971.jar" />
+    </item>
+
+</items>
