@@ -28,7 +28,6 @@ import com.google.zxing.client.android.result.ResultHandler;
 import com.google.zxing.client.android.result.ResultHandlerFactory;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
@@ -37,7 +36,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -45,8 +43,6 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -78,10 +74,6 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
 
   private static final long DEFAULT_INTENT_RESULT_DURATION_MS = 1500L;
   private static final long BULK_MODE_SCAN_DELAY_MS = 1000L;
-
-  private static final String[] ZXING_URLS = { "http://zxing.appspot.com/scan", "zxing://scan/" };
-
-  private static final int HISTORY_REQUEST_CODE = 0x0000bacc;
 
   private static final Collection<ResultMetadataType> DISPLAYABLE_METADATA_TYPES =
           EnumSet.of(ResultMetadataType.ISSUE_NUMBER,
@@ -122,18 +114,16 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
 
   @Override
   public void onCreate(Bundle icicle) {
-    super.onCreate(icicle);
+      super.onCreate(icicle);
 
-    Window window = getWindow();
-    window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-    setContentView(R.layout.capture);
+      Window window = getWindow();
+      window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+      setContentView(R.layout.capture);
 
-    hasSurface = false;
-    inactivityTimer = new InactivityTimer(this);
-    beepManager = new BeepManager(this);
-    ambientLightManager = new AmbientLightManager(this);
-
-    PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
+      hasSurface = false;
+      inactivityTimer = new InactivityTimer(this);
+      beepManager = new BeepManager(this);
+      ambientLightManager = new AmbientLightManager(this);
   }
 
   @Override
@@ -157,8 +147,8 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
 
     SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
-    //ToDo : Clean it up if its not needed in our implementation
-//    if (prefs.getBoolean(PreferencesActivity.KEY_DISABLE_AUTO_ORIENTATION, true)) {
+    //ToDo : Clean it up if its not needed in our implementation - PAX
+//    if (prefs.getBoolean(Preferences.KEY_DISABLE_AUTO_ORIENTATION, true)) {
 //      setRequestedOrientation(getCurrentOrientation());
 //    } else {
 //      setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
@@ -174,7 +164,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
 
     Intent intent = getIntent();
 
-    copyToClipboard = prefs.getBoolean(PreferencesActivity.KEY_COPY_TO_CLIPBOARD, true)
+    copyToClipboard = prefs.getBoolean(Preferences.KEY_COPY_TO_CLIPBOARD, true)
             && (intent == null || intent.getBooleanExtra(Intents.Scan.SAVE_HISTORY, true));
 
     source = IntentSource.NONE;
@@ -186,7 +176,6 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
     if (intent != null) {
 
       String action = intent.getAction();
-      String dataString = intent.getDataString();
 
       if (Intents.Scan.ACTION.equals(action)) {
 
@@ -215,34 +204,11 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
           statusView.setText(customPromptMessage);
         }
 
-      } else if (dataString != null &&
-              dataString.contains("http://www.google") &&
-              dataString.contains("/m/products/scan")) {
-
-        // Scan only products and send the result to mobile Product Search.
-        source = IntentSource.PRODUCT_SEARCH_LINK;
-        sourceUrl = dataString;
-        decodeFormats = DecodeFormatManager.PRODUCT_FORMATS;
-
-      } else if (isZXingURL(dataString)) {
-
-        // Scan formats requested in query string (all formats if none specified).
-        // If a return URL is specified, send the results there. Otherwise, handle it ourselves.
-        source = IntentSource.ZXING_LINK;
-        sourceUrl = dataString;
-        Uri inputUri = Uri.parse(dataString);
-        scanFromWebPageManager = new ScanFromWebPageManager(inputUri);
-        decodeFormats = DecodeFormatManager.parseDecodeFormats(inputUri);
-        // Allow a sub-set of the hints to be specified by the caller.
-        decodeHints = DecodeHintManager.parseDecodeHints(inputUri);
-
       }
-
       characterSet = intent.getStringExtra(Intents.Scan.CHARACTER_SET);
-
     }
 
-    SurfaceView surfaceView = (SurfaceView) findViewById(R.id.preview_view);
+    SurfaceView surfaceView = findViewById(R.id.preview_view);
     SurfaceHolder surfaceHolder = surfaceView.getHolder();
     if (hasSurface) {
       // The activity was paused but not stopped, so the surface still exists. Therefore
@@ -254,6 +220,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
     }
   }
 
+  //ToDo: Figure out where ws this used
   private int getCurrentOrientation() {
     int rotation = getWindowManager().getDefaultDisplay().getRotation();
     if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
@@ -273,18 +240,6 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
           return ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT;
       }
     }
-  }
-
-  private static boolean isZXingURL(String dataString) {
-    if (dataString == null) {
-      return false;
-    }
-    for (String url : ZXING_URLS) {
-      if (dataString.startsWith(url)) {
-        return true;
-      }
-    }
-    return false;
   }
 
   @Override
@@ -411,7 +366,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
         break;
       case NONE:
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        if (fromLiveScan && prefs.getBoolean(PreferencesActivity.KEY_BULK_MODE, false)) {
+        if (fromLiveScan && prefs.getBoolean(Preferences.KEY_BULK_MODE, false)) {
           Toast.makeText(getApplicationContext(),
                   getResources().getString(R.string.msg_bulk_mode_scanned) + " (" + rawResult.getText() + ')',
                   Toast.LENGTH_SHORT).show();
@@ -475,7 +430,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
 
     SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
-    if (resultHandler.getDefaultButtonID() != null && prefs.getBoolean(PreferencesActivity.KEY_AUTO_OPEN_WEB, false)) {
+    if (resultHandler.getDefaultButtonID() != null && prefs.getBoolean(Preferences.KEY_AUTO_OPEN_WEB, false)) {
       resultHandler.handleButtonPress(resultHandler.getDefaultButtonID());
       return;
     }
@@ -612,23 +567,6 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
         }
         sendReplyMessage(R.id.return_scan_result, intent, resultDurationMS);
         break;
-
-      case PRODUCT_SEARCH_LINK:
-        // Reformulate the URL which triggered us into a query, so that the request goes to the same
-        // TLD as the scan URL.
-        int end = sourceUrl.lastIndexOf("/scan");
-        String productReplyURL = sourceUrl.substring(0, end) + "?q=" +
-                resultHandler.getDisplayContents() + "&source=zxing";
-        sendReplyMessage(R.id.launch_product_query, productReplyURL, resultDurationMS);
-        break;
-
-      case ZXING_LINK:
-        if (scanFromWebPageManager != null && scanFromWebPageManager.isScanFromWebPage()) {
-          String linkReplyURL = scanFromWebPageManager.buildReplyURL(rawResult, resultHandler);
-          scanFromWebPageManager = null;
-          sendReplyMessage(R.id.launch_product_query, linkReplyURL, resultDurationMS);
-        }
-        break;
     }
   }
 
@@ -649,6 +587,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
     }
   }
 
+  //ToDo : Handle all these exceptions here and show some relevant message don't let the app crash
   private void initCamera(SurfaceHolder surfaceHolder) {
     if (surfaceHolder == null) {
       throw new IllegalStateException("No SurfaceHolder provided");
@@ -666,22 +605,13 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
       decodeOrStoreSavedBitmap(null, null);
     } catch (IOException ioe) {
       Log.w(TAG, ioe);
-      displayFrameworkBugMessageAndExit();
+      //displayFrameworkBugMessageAndExit();  //ToDo : Handle it in a different way in our case, don't exit app like the default behaviour
     } catch (RuntimeException e) {
       // Barcode Scanner has seen crashes in the wild of this variety:
       // java.?lang.?RuntimeException: Fail to connect to camera service
       Log.w(TAG, "Unexpected error initializing camera", e);
-      displayFrameworkBugMessageAndExit();
+      //displayFrameworkBugMessageAndExit();  //ToDo : Handle it in a different way in our case, don't exit app like the default behaviour
     }
-  }
-
-  private void displayFrameworkBugMessageAndExit() {
-    AlertDialog.Builder builder = new AlertDialog.Builder(this);
-    builder.setTitle(getString(R.string.app_name));
-    builder.setMessage(getString(R.string.msg_camera_framework_bug));
-    builder.setPositiveButton(R.string.button_ok, new FinishListener(this));
-    builder.setOnCancelListener(new FinishListener(this));
-    builder.show();
   }
 
   public void restartPreviewAfterDelay(long delayMS) {

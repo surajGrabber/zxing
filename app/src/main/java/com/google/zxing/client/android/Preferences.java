@@ -16,16 +16,13 @@
 
 package com.google.zxing.client.android;
 
-import android.app.Activity;
-import android.os.Bundle;
-
 /**
  * The main settings activity.
  *
  * @author dswitkin@google.com (Daniel Switkin)
  * @author Sean Owen
  */
-public final class PreferencesActivity extends Activity {
+public final class Preferences {
 
   public static final String KEY_DECODE_1D_PRODUCT = "preferences_decode_1D_product";
   public static final String KEY_DECODE_1D_INDUSTRIAL = "preferences_decode_1D_industrial";
@@ -54,19 +51,4 @@ public final class PreferencesActivity extends Activity {
   public static final String KEY_DISABLE_METERING = "preferences_disable_metering";
   public static final String KEY_DISABLE_BARCODE_SCENE_MODE = "preferences_disable_barcode_scene_mode";
   public static final String KEY_AUTO_OPEN_WEB = "preferences_auto_open_web";
-
-  @Override
-  protected void onCreate(Bundle icicle) {
-    super.onCreate(icicle);
-    getFragmentManager().beginTransaction().replace(android.R.id.content, new PreferencesFragment()).commit();
-  }
-
-  // Apparently this will be necessary when targeting API 19+:
-  /*
-  @Override
-  protected boolean isValidFragment(String fragmentName) {
-    return true;
-  }
-   */
-
 }
