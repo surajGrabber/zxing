@@ -87,7 +87,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
 //    private View resultView;
     private Result lastResult;
     private boolean hasSurface;
-    private boolean copyToClipboard;
+    //private boolean copyToClipboard;
     private IntentSource source;
     private Collection<BarcodeFormat> decodeFormats;
     private Map<DecodeHintType, ?> decodeHints;
@@ -156,8 +156,8 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
 
         Intent intent = getIntent();
 
-        copyToClipboard = prefs.getBoolean(Preferences.KEY_COPY_TO_CLIPBOARD, true)
-                && (intent == null || intent.getBooleanExtra(Intents.Scan.SAVE_HISTORY, true));
+//        copyToClipboard = prefs.getBoolean(Preferences.KEY_COPY_TO_CLIPBOARD, true)
+//                && (intent == null || intent.getBooleanExtra(Intents.Scan.SAVE_HISTORY, true));
 
         source = IntentSource.NONE;
         decodeFormats = null;
@@ -546,12 +546,6 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
                 }
                 sendReplyMessage(R.id.return_scan_result, intent, resultDurationMS);
                 break;
-        }
-    }
-
-    private void maybeSetClipboard(ResultHandler resultHandler) {
-        if (copyToClipboard && !resultHandler.areContentsSecure()) {
-//            ClipboardInterface.setText(resultHandler.getDisplayContents(), this);
         }
     }
 
