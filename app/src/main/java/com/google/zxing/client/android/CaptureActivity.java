@@ -73,26 +73,17 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
     private static final long DEFAULT_INTENT_RESULT_DURATION_MS = 1500L;
     private static final long BULK_MODE_SCAN_DELAY_MS = 1000L;
 
-    private static final Collection<ResultMetadataType> DISPLAYABLE_METADATA_TYPES =
-            EnumSet.of(ResultMetadataType.ISSUE_NUMBER,
-                    ResultMetadataType.SUGGESTED_PRICE,
-                    ResultMetadataType.ERROR_CORRECTION_LEVEL,
-                    ResultMetadataType.POSSIBLE_COUNTRY);
-
     private CameraManager cameraManager;
     private CaptureActivityHandler handler;
     private Result savedResultToShow;
     private ViewfinderView viewfinderView;
     private TextView statusView;
-//    private View resultView;
     private Result lastResult;
     private boolean hasSurface;
-    //private boolean copyToClipboard;
     private IntentSource source;
     private Collection<BarcodeFormat> decodeFormats;
     private Map<DecodeHintType, ?> decodeHints;
     private String characterSet;
-    //private BeepManager beepManager;
     private AmbientLightManager ambientLightManager;
 
     ViewfinderView getViewfinderView() {
@@ -210,7 +201,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
         }
     }
 
-    //ToDo: Figure out where ws this used
+    //ToDo: Figure out where was this used
     private int getCurrentOrientation() {
         int rotation = getWindowManager().getDefaultDisplay().getRotation();
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
