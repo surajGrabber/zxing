@@ -251,22 +251,35 @@ public final class CameraManager {
    */
   public synchronized Rect getFramingRectInPreview() {
     if (framingRectInPreview == null) {
-      Rect framingRect = getFramingRect();
-      if (framingRect == null) {
-        return null;
-      }
-      Rect rect = new Rect(framingRect);
-      Point cameraResolution = configManager.getCameraResolution();
+
+      //ToDo(Verify this logic) : Changed this block of code in the library to the below block as this part wasn't handling the scanning properly on devices with high resolution and landscape modes
+      /**
+       Rect framingRect = getFramingRect();
+       if (framingRect == null) {
+       return null;
+       }
+       Rect rect = new Rect(framingRect);
+       Point cameraResolution = configManager.getCameraResolution();
+       Point screenResolution = configManager.getScreenResolution();
+       if (cameraResolution == null || screenResolution == null) {
+       // Called early, before init even finished
+       return null;
+       }
+       rect.left = rect.left * cameraResolution.x / screenResolution.x;
+       rect.right = rect.right * cameraResolution.x / screenResolution.x;
+       rect.top = rect.top * cameraResolution.y / screenResolution.y;
+       rect.bottom = rect.bottom * cameraResolution.y / screenResolution.y;
+       framingRectInPreview = rect;
+       */
+
+      /**Changed Block**/
       Point screenResolution = configManager.getScreenResolution();
-      if (cameraResolution == null || screenResolution == null) {
-        // Called early, before init even finished
-        return null;
-      }
-      rect.left = rect.left * cameraResolution.x / screenResolution.x;
-      rect.right = rect.right * cameraResolution.x / screenResolution.x;
-      rect.top = rect.top * cameraResolution.y / screenResolution.y;
-      rect.bottom = rect.bottom * cameraResolution.y / screenResolution.y;
-      framingRectInPreview = rect;
+      int x = screenResolution.x;
+      int y = screenResolution.y;
+      if (x < y)
+        framingRectInPreview = new Rect(0, 0, screenResolution.y, screenResolution.x);
+      else
+        framingRectInPreview = new Rect(0, 0, screenResolution.x, screenResolution.y);
     }
     return framingRectInPreview;
   }
