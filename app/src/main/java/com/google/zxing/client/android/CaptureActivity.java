@@ -18,11 +18,9 @@ package com.google.zxing.client.android;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.Result;
-import com.google.zxing.ResultMetadataType;
 import com.google.zxing.client.android.camera.CameraManager;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
@@ -41,7 +39,6 @@ import android.widget.TextView;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.Map;
 
 /**
  * This activity opens the camera and does the actual scanning on a background thread. It draws a
@@ -55,8 +52,6 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
 
     private static final String TAG = CaptureActivity.class.getSimpleName();
 
-    private static final long DEFAULT_INTENT_RESULT_DURATION_MS = 1500L;
-
     private CameraManager cameraManager;
     private CaptureActivityHandler handler;
     private Result savedResultToShow;
@@ -64,7 +59,6 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
     private TextView statusView;
     private Result lastResult;
     private boolean hasSurface;
-    private IntentSource source;
     private Collection<BarcodeFormat> decodeFormats;
     private AmbientLightManager ambientLightManager;
 
@@ -114,7 +108,6 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
 
         ambientLightManager.start(cameraManager);
 
-        source = IntentSource.NONE;
         decodeFormats = null;
 
         SurfaceView surfaceView = findViewById(R.id.preview_view);
@@ -176,12 +169,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         switch (keyCode) {
             case KeyEvent.KEYCODE_BACK:
-                if (source == IntentSource.NATIVE_APP_INTENT) {
-                    setResult(RESULT_CANCELED);
-                    finish();
-                    return true;
-                }
-                if ((source == IntentSource.NONE || source == IntentSource.ZXING_LINK) && lastResult != null) {
+                if (lastResult != null) {
                     restartPreviewAfterDelay(0L);
                     return true;
                 }
@@ -202,7 +190,6 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
     }
 
     private void decodeOrStoreSavedBitmap(Bitmap bitmap, Result result) {
-        // Bitmap isn't used yet -- will be used soon
         if (handler == null) {
             savedResultToShow = result;
         } else {
@@ -247,83 +234,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
      */
     public void handleDecode(Result rawResult, Bitmap barcode, float scaleFactor) {
         lastResult = rawResult;
-
-        switch (source) {
-            case NATIVE_APP_INTENT:
-                handleDecodeExternally(rawResult);
-                break;
-            case NONE:
-                handleDecodeInternally(rawResult);
-                break;
-        }
-    }
-
-    // Put up our own UI for how to handle the decoded contents.
-    private void handleDecodeInternally(Result rawResult) {
         //ToDo : Handle result here
-    }
-
-    // Briefly show the contents of the barcode, then handle the result outside Barcode Scanner.
-    private void handleDecodeExternally(Result rawResult) {
-
-        long resultDurationMS;
-        if (getIntent() == null) {
-            resultDurationMS = DEFAULT_INTENT_RESULT_DURATION_MS;
-        } else {
-            resultDurationMS = getIntent().getLongExtra(Intents.Scan.RESULT_DISPLAY_DURATION_MS,
-                    DEFAULT_INTENT_RESULT_DURATION_MS);
-        }
-
-        switch (source) {
-            case NATIVE_APP_INTENT:
-                // Hand back whatever action they requested - this can be changed to Intents.Scan.ACTION when
-                // the deprecated intent is retired.
-                Intent intent = new Intent(getIntent().getAction());
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
-                intent.putExtra(Intents.Scan.RESULT, rawResult.toString());
-                intent.putExtra(Intents.Scan.RESULT_FORMAT, rawResult.getBarcodeFormat().toString());
-                byte[] rawBytes = rawResult.getRawBytes();
-                if (rawBytes != null && rawBytes.length > 0) {
-                    intent.putExtra(Intents.Scan.RESULT_BYTES, rawBytes);
-                }
-                Map<ResultMetadataType, ?> metadata = rawResult.getResultMetadata();
-                if (metadata != null) {
-                    if (metadata.containsKey(ResultMetadataType.UPC_EAN_EXTENSION)) {
-                        intent.putExtra(Intents.Scan.RESULT_UPC_EAN_EXTENSION,
-                                metadata.get(ResultMetadataType.UPC_EAN_EXTENSION).toString());
-                    }
-                    Number orientation = (Number) metadata.get(ResultMetadataType.ORIENTATION);
-                    if (orientation != null) {
-                        intent.putExtra(Intents.Scan.RESULT_ORIENTATION, orientation.intValue());
-                    }
-                    String ecLevel = (String) metadata.get(ResultMetadataType.ERROR_CORRECTION_LEVEL);
-                    if (ecLevel != null) {
-                        intent.putExtra(Intents.Scan.RESULT_ERROR_CORRECTION_LEVEL, ecLevel);
-                    }
-                    @SuppressWarnings("unchecked")
-                    Iterable<byte[]> byteSegments = (Iterable<byte[]>) metadata.get(ResultMetadataType.BYTE_SEGMENTS);
-                    if (byteSegments != null) {
-                        int i = 0;
-                        for (byte[] byteSegment : byteSegments) {
-                            intent.putExtra(Intents.Scan.RESULT_BYTE_SEGMENTS_PREFIX + i, byteSegment);
-                            i++;
-                        }
-                    }
-                }
-                sendReplyMessage(R.id.return_scan_result, intent, resultDurationMS);
-                break;
-        }
-    }
-
-    private void sendReplyMessage(int id, Object arg, long delayMS) {
-        if (handler != null) {
-            Message message = Message.obtain(handler, id, arg);
-            if (delayMS > 0L) {
-                handler.sendMessageDelayed(message, delayMS);
-            } else {
-                handler.sendMessage(message);
-            }
-        }
     }
 
     //ToDo : Handle all these exceptions here and show some relevant message don't let the app crash
