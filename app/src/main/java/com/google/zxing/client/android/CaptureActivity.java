@@ -57,7 +57,6 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
     private Result savedResultToShow;
     private ViewfinderView viewfinderView;
     private TextView statusView;
-    private Result lastResult;
     private boolean hasSurface;
     private Collection<BarcodeFormat> decodeFormats;
     private AmbientLightManager ambientLightManager;
@@ -102,7 +101,6 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
         statusView = (TextView) findViewById(R.id.status_view);
 
         handler = null;
-        lastResult = null;
 
         resetStatusView();
 
@@ -169,11 +167,8 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         switch (keyCode) {
             case KeyEvent.KEYCODE_BACK:
-                if (lastResult != null) {
-                    restartPreviewAfterDelay(0L);
-                    return true;
-                }
-                break;
+                restartPreviewAfterDelay(0L);
+                return true;
             case KeyEvent.KEYCODE_FOCUS:
             case KeyEvent.KEYCODE_CAMERA:
                 // Handle these events so they don't launch the Camera app
@@ -233,7 +228,6 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
      * @param barcode     A greyscale bitmap of the camera data which was decoded.
      */
     public void handleDecode(Result rawResult, Bitmap barcode, float scaleFactor) {
-        lastResult = rawResult;
         //ToDo : Handle result here
     }
 
@@ -273,7 +267,6 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
         statusView.setText(R.string.msg_default_status);
         statusView.setVisibility(View.VISIBLE);
         viewfinderView.setVisibility(View.VISIBLE);
-        lastResult = null;
     }
 
     public void drawViewfinder() {
