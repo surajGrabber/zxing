@@ -20,21 +20,17 @@ import com.google.zxing.BarcodeFormat;
 import com.google.zxing.Result;
 import com.google.zxing.client.android.camera.CameraManager;
 
-import android.app.Activity;
-import android.content.pm.ActivityInfo;
-import android.content.res.Configuration;
+import android.app.Fragment;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
-import android.view.KeyEvent;
-import android.view.Surface;
+import android.view.LayoutInflater;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
+import android.view.ViewGroup;
 import android.widget.TextView;
 
 import java.io.IOException;
@@ -48,12 +44,12 @@ import java.util.Collection;
  * @author dswitkin@google.com (Daniel Switkin)
  * @author Sean Owen
  */
-public final class CaptureActivity extends Activity implements SurfaceHolder.Callback {
+public final class CaptureFragment extends Fragment implements SurfaceHolder.Callback {
 
-    private static final String TAG = CaptureActivity.class.getSimpleName();
+    private static final String TAG = CaptureFragment.class.getSimpleName();
 
     private CameraManager cameraManager;
-    private CaptureActivityHandler handler;
+    private CaptureFragmentHandler handler;
     private Result savedResultToShow;
     private ViewfinderView viewfinderView;
     private TextView statusView;
@@ -61,44 +57,33 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
     private Collection<BarcodeFormat> decodeFormats;
     private AmbientLightManager ambientLightManager;
 
-    ViewfinderView getViewfinderView() {
-        return viewfinderView;
-    }
-
-    public Handler getHandler() {
-        return handler;
-    }
-
-    CameraManager getCameraManager() {
-        return cameraManager;
-    }
-
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
-
-        Window window = getWindow();
-        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        setContentView(R.layout.capture);
-
         hasSurface = false;
-        ambientLightManager = new AmbientLightManager(this);
+        ambientLightManager = new AmbientLightManager(getContext());
     }
 
     @Override
-    protected void onResume() {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        super.onCreateView(inflater, container, savedInstanceState);
+        return inflater.inflate(R.layout.capture, container, false);
+    }
+
+    @Override
+    public void onResume() {
         super.onResume();
 
         // CameraManager must be initialized here, not in onCreate(). This is necessary because we don't
         // want to open the camera driver and measure the screen size if we're going to show the help on
         // first launch. That led to bugs where the scanning rectangle was the wrong size and partially
         // off screen.
-        cameraManager = new CameraManager(getApplication());
+        cameraManager = new CameraManager(getActivity().getApplication());
 
-        viewfinderView = (ViewfinderView) findViewById(R.id.viewfinder_view);
+        viewfinderView = (ViewfinderView) getView().findViewById(R.id.viewfinder_view);
         viewfinderView.setCameraManager(cameraManager);
 
-        statusView = (TextView) findViewById(R.id.status_view);
+        statusView = (TextView)getView().findViewById(R.id.status_view);
 
         handler = null;
 
@@ -108,7 +93,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
 
         decodeFormats = null;
 
-        SurfaceView surfaceView = findViewById(R.id.preview_view);
+        SurfaceView surfaceView = (SurfaceView)getView().findViewById(R.id.preview_view);
         SurfaceHolder surfaceHolder = surfaceView.getHolder();
         if (hasSurface) {
             // The activity was paused but not stopped, so the surface still exists. Therefore
@@ -120,30 +105,8 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
         }
     }
 
-    //ToDo: Figure out where was this used
-    private int getCurrentOrientation() {
-        int rotation = getWindowManager().getDefaultDisplay().getRotation();
-        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            switch (rotation) {
-                case Surface.ROTATION_0:
-                case Surface.ROTATION_90:
-                    return ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
-                default:
-                    return ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE;
-            }
-        } else {
-            switch (rotation) {
-                case Surface.ROTATION_0:
-                case Surface.ROTATION_270:
-                    return ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
-                default:
-                    return ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT;
-            }
-        }
-    }
-
     @Override
-    protected void onPause() {
+    public void onPause() {
         if (handler != null) {
             handler.quitSynchronously();
             handler = null;
@@ -151,7 +114,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
         ambientLightManager.stop();
         cameraManager.closeDriver();
         if (!hasSurface) {
-            SurfaceView surfaceView = (SurfaceView) findViewById(R.id.preview_view);
+            SurfaceView surfaceView = (SurfaceView) getView().findViewById(R.id.preview_view);
             SurfaceHolder surfaceHolder = surfaceView.getHolder();
             surfaceHolder.removeCallback(this);
         }
@@ -159,29 +122,8 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
     }
 
     @Override
-    protected void onDestroy() {
+    public void onDestroy() {
         super.onDestroy();
-    }
-
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        switch (keyCode) {
-            case KeyEvent.KEYCODE_BACK:
-                restartPreviewAfterDelay(0L);
-                return true;
-            case KeyEvent.KEYCODE_FOCUS:
-            case KeyEvent.KEYCODE_CAMERA:
-                // Handle these events so they don't launch the Camera app
-                return true;
-            // Use volume up/down to turn on light
-            case KeyEvent.KEYCODE_VOLUME_DOWN:
-                cameraManager.setTorch(false);
-                return true;
-            case KeyEvent.KEYCODE_VOLUME_UP:
-                cameraManager.setTorch(true);
-                return true;
-        }
-        return super.onKeyDown(keyCode, event);
     }
 
     private void decodeOrStoreSavedBitmap(Bitmap bitmap, Result result) {
@@ -192,7 +134,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
                 savedResultToShow = result;
             }
             if (savedResultToShow != null) {
-                Message message = Message.obtain(handler, R.id.decode_succeeded, savedResultToShow);
+                Message message = Message.obtain(handler, MessageStatus.DECODE_SUCCEEDED, savedResultToShow);
                 handler.sendMessage(message);
             }
             savedResultToShow = null;
@@ -244,7 +186,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
             cameraManager.openDriver(surfaceHolder);
             // Creating the handler starts the preview, which can also throw a RuntimeException.
             if (handler == null) {
-                handler = new CaptureActivityHandler(this, decodeFormats, null, null, cameraManager); //ToDo : Handle null passed here in CaptureActivityHandler
+                handler = new CaptureFragmentHandler(this, decodeFormats, null, null, cameraManager); //ToDo : Handle null passed here in CaptureFragmentHandler
             }
             decodeOrStoreSavedBitmap(null, null);
         } catch (IOException ioe) {
@@ -256,20 +198,21 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
         }
     }
 
-    public void restartPreviewAfterDelay(long delayMS) {
-        if (handler != null) {
-            handler.sendEmptyMessageDelayed(R.id.restart_preview, delayMS);
-        }
-        resetStatusView();
-    }
-
     private void resetStatusView() {
-        statusView.setText(R.string.msg_default_status);
-        statusView.setVisibility(View.VISIBLE);
-        viewfinderView.setVisibility(View.VISIBLE);
+//        statusView.setText(R.string.msg_default_status);
+//        statusView.setVisibility(View.VISIBLE);
+//        viewfinderView.setVisibility(View.VISIBLE);
     }
 
-    public void drawViewfinder() {
-        viewfinderView.drawViewfinder();
+    ViewfinderView getViewfinderView() {
+        return viewfinderView;
+    }
+
+    public Handler getHandler() {
+        return handler;
+    }
+
+    CameraManager getCameraManager() {
+        return cameraManager;
     }
 }

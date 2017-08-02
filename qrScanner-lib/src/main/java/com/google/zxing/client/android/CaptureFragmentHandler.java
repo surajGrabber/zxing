@@ -19,11 +19,8 @@ package com.google.zxing.client.android;
 import android.graphics.BitmapFactory;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.DecodeHintType;
-import com.google.zxing.Result;
 import com.google.zxing.client.android.camera.CameraManager;
 
-import android.app.Activity;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
@@ -37,11 +34,11 @@ import java.util.Map;
  *
  * @author dswitkin@google.com (Daniel Switkin)
  */
-public final class CaptureActivityHandler extends Handler {
+public final class CaptureFragmentHandler extends Handler {
 
-  private static final String TAG = CaptureActivityHandler.class.getSimpleName();
+  private static final String TAG = CaptureFragmentHandler.class.getSimpleName();
 
-  private final CaptureActivity activity;
+  private final CaptureFragment fragment;
   private final DecodeThread decodeThread;
   private State state;
   private final CameraManager cameraManager;
@@ -52,14 +49,14 @@ public final class CaptureActivityHandler extends Handler {
     DONE
   }
 
-  CaptureActivityHandler(CaptureActivity activity,
+  CaptureFragmentHandler(CaptureFragment fragment,
                          Collection<BarcodeFormat> decodeFormats,
                          Map<DecodeHintType,?> baseHints,
                          String characterSet,
                          CameraManager cameraManager) {
-    this.activity = activity;
-    decodeThread = new DecodeThread(activity, decodeFormats, baseHints, characterSet,
-        new ViewfinderResultPointCallback(activity.getViewfinderView()));
+    this.fragment= fragment;
+    decodeThread = new DecodeThread(fragment, decodeFormats, baseHints, characterSet,
+        new ViewfinderResultPointCallback(fragment.getViewfinderView()));
     decodeThread.start();
     state = State.SUCCESS;
 
@@ -72,10 +69,10 @@ public final class CaptureActivityHandler extends Handler {
   @Override
   public void handleMessage(Message message) {
     switch (message.what) {
-      case R.id.restart_preview:
+      case MessageStatus.RESTART_PREVIEW:
         restartPreviewAndDecode();
         break;
-      case R.id.decode_succeeded:
+      case MessageStatus.DECODE_SUCCEEDED:
         state = State.SUCCESS;
         Bundle bundle = message.getData();
         Bitmap barcode = null;
@@ -89,17 +86,13 @@ public final class CaptureActivityHandler extends Handler {
           }
           scaleFactor = bundle.getFloat(DecodeThread.BARCODE_SCALED_FACTOR);          
         }
-        activity.handleDecode((Result) message.obj, barcode, scaleFactor);
-        //restartPreviewAndDecode();  //Imp : Once succeeded if we want to continue scanning then we have to restart the thread
+       // activity.handleDecode((Result) message.obj, barcode, scaleFactor);
+        restartPreviewAndDecode();  //Imp : Once succeeded if we want to continue scanning then we have to restart the thread
         break;
-      case R.id.decode_failed:
+      case MessageStatus.DECODE_FAILED:
         // We're decoding as fast as possible, so when one decode fails, start another.
         state = State.PREVIEW;
-        cameraManager.requestPreviewFrame(decodeThread.getHandler(), R.id.decode);
-        break;
-      case R.id.return_scan_result:
-        activity.setResult(Activity.RESULT_OK, (Intent) message.obj);
-        activity.finish();
+        cameraManager.requestPreviewFrame(decodeThread.getHandler(), MessageStatus.DECODE);
         break;
     }
   }
@@ -107,7 +100,7 @@ public final class CaptureActivityHandler extends Handler {
   public void quitSynchronously() {
     state = State.DONE;
     cameraManager.stopPreview();
-    Message quit = Message.obtain(decodeThread.getHandler(), R.id.quit);
+    Message quit = Message.obtain(decodeThread.getHandler(), MessageStatus.QUIT);
     quit.sendToTarget();
     try {
       // Wait at most half a second; should be enough time, and onPause() will timeout quickly
@@ -117,16 +110,14 @@ public final class CaptureActivityHandler extends Handler {
     }
 
     // Be absolutely sure we don't send any queued up messages
-    removeMessages(R.id.decode_succeeded);
-    removeMessages(R.id.decode_failed);
+    removeMessages(MessageStatus.DECODE_SUCCEEDED);
+    removeMessages(MessageStatus.DECODE_FAILED);
   }
 
   private void restartPreviewAndDecode() {
     if (state == State.SUCCESS) {
       state = State.PREVIEW;
-      cameraManager.requestPreviewFrame(decodeThread.getHandler(), R.id.decode);
-      activity.drawViewfinder();
+      cameraManager.requestPreviewFrame(decodeThread.getHandler(), MessageStatus.DECODE);
     }
   }
-
 }

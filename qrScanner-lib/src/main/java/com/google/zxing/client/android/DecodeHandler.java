@@ -38,14 +38,14 @@ final class DecodeHandler extends Handler {
 
   private static final String TAG = DecodeHandler.class.getSimpleName();
 
-  private final CaptureActivity activity;
+  private final CaptureFragment fragment;
   private final MultiFormatReader multiFormatReader;
   private boolean running = true;
 
-  DecodeHandler(CaptureActivity activity, Map<DecodeHintType,Object> hints) {
+  DecodeHandler(CaptureFragment fragment, Map<DecodeHintType,Object> hints) {
     multiFormatReader = new MultiFormatReader();
     multiFormatReader.setHints(hints);
-    this.activity = activity;
+    this.fragment = fragment;
   }
 
   @Override
@@ -54,10 +54,10 @@ final class DecodeHandler extends Handler {
       return;
     }
     switch (message.what) {
-      case R.id.decode:
+      case MessageStatus.DECODE:
         decode((byte[]) message.obj, message.arg1, message.arg2);
         break;
-      case R.id.quit:
+      case MessageStatus.QUIT:
         running = false;
         Looper.myLooper().quit();
         break;
@@ -75,7 +75,7 @@ final class DecodeHandler extends Handler {
   private void decode(byte[] data, int width, int height) {
     long start = System.currentTimeMillis();
     Result rawResult = null;
-    PlanarYUVLuminanceSource source = activity.getCameraManager().buildLuminanceSource(data, width, height);
+    PlanarYUVLuminanceSource source = fragment.getCameraManager().buildLuminanceSource(data, width, height);
     if (source != null) {
       BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
       try {
@@ -87,13 +87,13 @@ final class DecodeHandler extends Handler {
       }
     }
 
-    Handler handler = activity.getHandler();
+    Handler handler = fragment.getHandler();
     if (rawResult != null) {
       // Don't log the barcode contents for security.
       long end = System.currentTimeMillis();
       Log.d(TAG, "Found barcode in " + (end - start) + " ms");
       if (handler != null) {
-        Message message = Message.obtain(handler, R.id.decode_succeeded, rawResult);
+        Message message = Message.obtain(handler, MessageStatus.DECODE_SUCCEEDED, rawResult);
         Bundle bundle = new Bundle();
         bundleThumbnail(source, bundle);        
         message.setData(bundle);
@@ -101,7 +101,7 @@ final class DecodeHandler extends Handler {
       }
     } else {
       if (handler != null) {
-        Message message = Message.obtain(handler, R.id.decode_failed);
+        Message message = Message.obtain(handler, MessageStatus.DECODE_FAILED);
         message.sendToTarget();
       }
     }

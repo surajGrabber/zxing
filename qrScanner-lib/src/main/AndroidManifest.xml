@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
- Copyright (C) 2012 ZXing authors
+ Copyright (C) 2008 ZXing authors
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -14,11 +14,10 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  -->
-<resources>
-  <style name="CaptureTheme" parent="android:Theme.Holo">
-    <item name="android:windowFullscreen">true</item>
-    <item name="android:windowContentOverlay">@null</item>
-    <item name="android:windowActionBarOverlay">true</item>
-    <item name="android:windowActionModeOverlay">true</item>
-  </style>
-</resources>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="com.google.zxing.client.android"
+          android:versionName="4.7.7"
+          android:versionCode="107"
+          android:installLocation="auto">
+
+</manifest>
