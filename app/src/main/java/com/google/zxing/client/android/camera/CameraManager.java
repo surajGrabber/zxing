@@ -251,6 +251,9 @@ public final class CameraManager {
    */
   public synchronized Rect getFramingRectInPreview() {
     if (framingRectInPreview == null) {
+
+      //ToDo : Changed this block of code in the library to the below block as this part wasn't handling the scanning properly on devices with high resolution and landscape modes
+      /**
       Rect framingRect = getFramingRect();
       if (framingRect == null) {
         return null;
@@ -267,6 +270,16 @@ public final class CameraManager {
       rect.top = rect.top * cameraResolution.y / screenResolution.y;
       rect.bottom = rect.bottom * cameraResolution.y / screenResolution.y;
       framingRectInPreview = rect;
+       */
+
+      /**Changed Block**/
+      Point screenResolution = configManager.getScreenResolution();
+      int x = screenResolution.x;
+      int y = screenResolution.y;
+      if (x < y)
+      framingRectInPreview = new Rect(0, 0, screenResolution.y, screenResolution.x);
+      else
+        framingRectInPreview = new Rect(0, 0, screenResolution.x, screenResolution.y);
     }
     return framingRectInPreview;
   }
